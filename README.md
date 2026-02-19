@@ -1,16 +1,16 @@
 # Privacy-Preserving File Transfer Platform
+ Final Year Computing Project – Ulster University (COM668)
+
 
 ## Problem Statement
 
 Modern cloud-based file transfer systems require users to trust service providers with sensitive data. While end-to-end encryption enhances confidentiality, it often eliminates server-side visibility entirely, limiting the ability to detect abnormal or potentially harmful usage patterns. This project evaluates whether structured metadata analysis can provide operational insight without exposing file content.
 
----
 
 ## Research Question
 
 To what extent can statistically explainable anomaly detection techniques applied to structured file-transfer metadata provide meaningful operational insight within a zero-knowledge, client-side encrypted architecture without compromising confidentiality?
 
----
 
 ## Objectives
 
@@ -22,7 +22,6 @@ To what extent can statistically explainable anomaly detection techniques applie
 - Analyse privacy–visibility trade-offs in the system architecture  
 - Critically assess technical limitations and ethical implications  
 
----
 
 ## Threat Model
 
@@ -39,13 +38,13 @@ The system assumes an honest-but-curious server model:
 - Advanced traffic analysis resistance  
 - Malicious users operating with valid credentials  
 
----
+
 
 ## Methodology
 
 A hybrid approach combines structured research planning with iterative Agile implementation. System boundaries, threat model, and requirements are defined during the planning phase. Implementation proceeds incrementally, followed by controlled experimental evaluation of anomaly detection techniques.
 
----
+
 
 ## Planned Technology Stack
 
@@ -56,7 +55,7 @@ A hybrid approach combines structured research planning with iterative Agile imp
 - Statistical anomaly detection (Z-score, IQR)  
 - Synthetic dataset generation for controlled evaluation  
 
----
+
 
 ## Evaluation Strategy
 
@@ -65,7 +64,7 @@ A hybrid approach combines structured research planning with iterative Agile imp
 - Risk-informed analysis of architectural decisions  
 - Critical assessment of trade-offs and system limitations  
 
----
+
 
 ## Project Phases
 
@@ -78,7 +77,7 @@ Implementation of encrypted file transfer, metadata logging, anomaly detection, 
 **AT4 – Project Review**  
 Verification, validation, performance evaluation, architectural trade-off analysis, and critical reflection.
 
----
+
 
 ## Repository Structure
 
