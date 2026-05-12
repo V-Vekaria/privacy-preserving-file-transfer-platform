@@ -1,0 +1,52 @@
+# Risk Register
+
+**Project:** Privacy-Preserving File Transfer Platform
+**Module:** COM668 — Computing Project
+**Student:** Vishnu Vekaria (B00969091)
+**Source:** AT2 Challenge Definition Report — Section 3.2
+
+---
+
+## Risk Assessment Criteria
+
+- **Probability:** 1 (Very Low) → 5 (Very High)
+- **Impact:** 1 (Negligible) → 5 (Critical)
+- **Exposure:** Probability × Impact
+- **Exposure bands:** 1–6 Low | 7–12 Medium | 13–19 High | 20–25 Critical
+
+---
+
+## Risk Register Table
+
+| ID | Description | Category | Probability | Impact | Exposure | Mitigation | Linked Requirements | Status |
+|----|-------------|----------|-------------|--------|----------|------------|---------------------|--------|
+| R1 | **Encryption Implementation Error** — incorrect application of AES-GCM or key handling introduces a vulnerability that exposes plaintext content | Technical | 3 | 5 | 15 (High) | Use established cryptographic libraries (Web Crypto API). Validate encrypted output against known test vectors. | FR3, FR4, FR5 / Obj 1 | 🔴 Open |
+| R2 | **False Positive Rate Too High** — the anomaly detection engine flags normal behaviour as suspicious, undermining detection credibility | Technical | 4 | 4 | 16 (High) | Compare Z-score and IQR outputs against the same dataset. Calibrate thresholds iteratively using synthetic test scenarios. | FR7, FR8, FR9, FR10 / Obj 4, Obj 5 | 🔴 Open |
+| R3 | **Security Overclaim Risk** — the system is presented as providing stronger security guarantees than the defined threat model actually supports | Ethical | 3 | 5 | 15 (High) | Explicitly define the honest-but-curious server threat model in documentation. State non-goals clearly in scope. | NFR-Security / Obj 7 | 🔴 Open |
+| R4 | **Metadata Inference Risk** — retained metadata attributes, although non-semantic, enable indirect inference about user behaviour beyond the intended purpose | Ethical | 3 | 4 | 12 (Medium) | Restrict metadata schema to encrypted file size, timestamp, and frequency. Exclude all plaintext filenames, tags, or descriptors. | FR6 / Obj 3 | 🔴 Open |
+| R5 | **Synthetic Dataset Unrealism** — evaluation datasets do not reflect realistic usage distributions, leading to misleading precision and recall results | Evaluation | 3 | 4 | 12 (Medium) | Design synthetic scenarios with realistic statistical distributions. Document assumptions and acknowledge limitations in evaluation. | FR7, FR8, FR9 / Obj 5 | 🔴 Open |
+| R6 | **Scope Creep** — implementation expands beyond defined Must requirements into optional features before core functionality is complete | Project Management | 4 | 3 | 12 (Medium) | Enforce MoSCoW prioritisation strictly. Review scope at each development phase before progressing. | All Must requirements (FR1–FR9) / Obj 1–6 | 🔴 Open |
+
+---
+
+## Status Key
+
+| Symbol | Meaning |
+|--------|---------|
+| 🔴 Open | Risk not yet addressed |
+| 🟡 Monitoring | Mitigation in progress |
+| 🟢 Mitigated | Mitigation confirmed effective |
+| ⚫ Closed | Risk no longer applicable |
+
+---
+
+## Risk Update Log
+
+| Date | Risk ID | Update | Updated By |
+|------|---------|--------|------------|
+| 12 May 2026 | All | Initial register created from AT2 Section 3.2 | Vishnu Vekaria |
+| | | | |
+
+---
+
+*This register will be reviewed and updated at the start of each development phase and prior to AT4 submission.*

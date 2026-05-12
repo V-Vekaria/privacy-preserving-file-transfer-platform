@@ -1,0 +1,91 @@
+# Requirements Traceability Matrix
+
+**Project:** Privacy-Preserving File Transfer Platform
+**Module:** COM668 — Computing Project
+**Student:** Vishnu Vekaria (B00969091)
+**Source:** AT2 Challenge Definition Report — Section 3.1
+
+---
+
+## How to Use This Matrix
+
+As each requirement is implemented, fill in:
+- **File(s)** — the source file(s) where it is implemented
+- **Function(s)** — the specific function(s) that satisfy it
+- **Test** — how it was verified against the acceptance criterion
+- **Status** — current implementation status
+
+---
+
+## Functional Requirements
+
+| ID | Requirement | MoSCoW | Acceptance Criterion | File(s) | Function(s) | Test | Status |
+|----|-------------|--------|----------------------|---------|-------------|------|--------|
+| FR1 | Allow users to register and authenticate securely | Must | Valid credentials allow login. Invalid or duplicate credentials are rejected with an error message. | | | | 🔴 Not started |
+| FR2 | Hash passwords prior to storage | Must | No plaintext password exists in any database record or log. Only bcrypt hash values are stored. | | | | 🔴 Not started |
+| FR3 | Encrypt file content on the client side before upload | Must | Outgoing HTTP request payload contains only ciphertext. No plaintext file data reaches the server at any point during upload. | | | | 🔴 Not started |
+| FR4 | Ensure encryption keys are generated client-side and never stored in plaintext on the server | Must | No plaintext keys exist in server storage or logs. Key generation occurs in the browser session only. Only the IV is transmitted. | | | | 🔴 Not started |
+| FR5 | Store encrypted file content without accessing plaintext data | Must | All server-stored files are unreadable ciphertext. Decryption is only possible client-side using the retained key. | | | | 🔴 Not started |
+| FR6 | Log structured metadata including encrypted file size, timestamp, and transfer frequency | Must | Each upload produces a metadata record within one second containing size, timestamp, and frequency. No filename is stored. | | | | 🔴 Not started |
+| FR7 | Compute anomaly scores using Z-score methodology | Must | System Z-score matches manual calculation of Z = (x − μ) / σ within floating-point tolerance. | | | | 🔴 Not started |
+| FR8 | Compute anomaly thresholds using the IQR method | Must | System correctly computes Q1, Q3, IQR and boundary values matching manually verified results. | | | | 🔴 Not started |
+| FR9 | Flag metadata entries exceeding defined statistical thresholds | Must | Records exceeding thresholds are flagged TRUE with timestamp. Records within bounds remain unflagged. | | | | 🔴 Not started |
+| FR10 | Store anomaly detection results for review and evaluation | Must | Each detection event produces a persisted result linked to MetadataID, queryable by user and time range. | | | | 🔴 Not started |
+| FR11 | Display aggregate usage statistics and detected anomalies via a dashboard | Should | Dashboard loads within three seconds and correctly displays uploads, size distribution, anomaly count, and recent events. | | | | 🔴 Not started |
+
+---
+
+## Non-Functional Requirements
+
+| ID | Category | Requirement | Acceptance Criterion | File(s) | Implementation Notes | Test | Status |
+|----|----------|-------------|----------------------|---------|----------------------|------|--------|
+| NFR1 | Security | File content must remain confidential through client-side encryption. Communication must use TLS. Passwords must be hashed using a secure algorithm. | Network inspection confirms all communication occurs over HTTPS. No plaintext file content, passwords, or keys are present in server-side storage or logs. | | | | 🔴 Not started |
+| NFR2 | Performance | Encryption operations must complete within acceptable latency for typical file sizes. Anomaly detection must execute efficiently on structured metadata. | Client-side encryption of a 10MB file completes within five seconds. Anomaly score computation for a single metadata record completes within one second. | | | | 🔴 Not started |
+| NFR3 | Reliability | Metadata integrity must be preserved during storage. Encrypted files must remain retrievable and decryptable after upload. | A file uploaded and subsequently downloaded decrypts correctly to its original content in all test cases. | | | | 🔴 Not started |
+| NFR4 | Usability | The dashboard must present anomaly results clearly and interpretably. | A test user can correctly identify the number of flagged anomalies and the most recent flagged event within two minutes, without assistance. | | | | 🔴 Not started |
+| NFR5 | Scalability | The system must support small-scale organisational usage within defined constraints. | The system handles ten concurrent users performing simultaneous uploads without errors or measurable degradation. | | | | 🔴 Not started |
+
+---
+
+## Stakeholder → Requirements Mapping
+
+| Stakeholder | Primary Needs | Requirements Driven |
+|-------------|---------------|---------------------|
+| End Users (file senders and recipients) | Client-side encryption, secure auth, usable UI | FR1, FR2, FR3, FR4, FR5 |
+| Security Administrators | Anomaly detection, dashboard visibility | FR6, FR7, FR8, FR9, FR10, FR11 |
+| Deploying Organisations | GDPR compliance, data minimisation, reliability | NFR1, NFR2, NFR3, NFR4, NFR5 |
+
+---
+
+## MoSCoW Summary
+
+| Priority | Requirements | Count |
+|----------|-------------|-------|
+| Must | FR1, FR2, FR3, FR4, FR5, FR6, FR7, FR8, FR9, FR10 | 10 |
+| Should | FR11 | 1 |
+| Could | Dashboard enhancements, extended reporting | — |
+| Won't (this scope) | ML detection, blockchain, enterprise multi-tenancy | — |
+
+---
+
+## Status Key
+
+| Symbol | Meaning |
+|--------|---------|
+| 🔴 Not started | Implementation not yet begun |
+| 🟡 In progress | Partially implemented |
+| 🟢 Complete | Implemented and tested against acceptance criterion |
+| ⚫ Deferred | Moved to future scope |
+
+---
+
+## Traceability Update Log
+
+| Date | Requirement ID | Update | File / Function Added |
+|------|---------------|--------|-----------------------|
+| 12 May 2026 | All | Matrix created from AT2 Section 3.1 | — |
+| | | | |
+
+---
+
+*This matrix will be updated as each requirement is implemented. Final version feeds directly into AT4 Project Review Report.*
