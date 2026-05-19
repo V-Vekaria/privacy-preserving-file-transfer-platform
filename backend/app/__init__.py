@@ -32,6 +32,7 @@ def create_app():
 
     # Create tables
     with app.app_context():
+        from . import models  # noqa: F401 — registers models with SQLAlchemy
         db.create_all()
 
     return app
