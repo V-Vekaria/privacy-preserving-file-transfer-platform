@@ -9,17 +9,22 @@ load_dotenv()
 db = SQLAlchemy()
 
 
-def create_app():
+def create_app(config_name="development"):
     app = Flask(__name__, instance_relative_config=True)
 
     # Configuration
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-CHANGE-ME")
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "jwt-secret-CHANGE-ME")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-        "DATABASE_URI", "sqlite:///securetransfer.db"
-    )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50MB max upload
+
+    if config_name == "testing":
+        app.config["TESTING"] = True
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    else:
+        app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+            "DATABASE_URI", "sqlite:///securetransfer.db"
+        )
 
     # Extensions
     db.init_app(app)
@@ -29,6 +34,12 @@ def create_app():
     @app.get("/api/health")
     def health():
         return {"status": "ok", "service": "SecureTransfer API"}
+
+    # Blueprints
+    from .routes.auth import auth_bp
+    from .routes.files import files_bp
+    app.register_blueprint(auth_bp, url_prefix="/api/auth")
+    app.register_blueprint(files_bp, url_prefix="/api/files")
 
     # Create tables
     with app.app_context():
