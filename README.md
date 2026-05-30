@@ -20,7 +20,7 @@ This project demonstrates that meaningful anomaly detection can operate entirely
 | AT2 | Challenge Definition Report | ✅ Submitted |
 | AT3 Week 1 | Flask scaffold + models | ✅ Complete |
 | AT3 Week 2 | Auth routes + JWT | ✅ Complete |
-| AT3 Week 3 | File upload + metadata logging | 🔄 In Progress |
+| AT3 Week 3 | File upload + metadata logging | ✅ Complete |
 | AT3 Week 4 | Z-score + IQR detection engine | 🔄 In Progress |
 | AT3 Week 5 | Angular init + auth module | ⏳ Pending |
 | AT3 Week 6 | Upload component + dashboard | ⏳ Pending |
