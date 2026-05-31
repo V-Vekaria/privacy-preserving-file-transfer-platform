@@ -2,7 +2,7 @@
 
 **Project:** Privacy-Preserving File Transfer Platform
 **Module:** COM668 — Computing Project
-**Student:** Vishnu Vekaria (B00969091)
+**Student:** Vishnu Vekaria
 
 ---
 

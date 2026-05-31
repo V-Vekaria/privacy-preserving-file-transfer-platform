@@ -9,6 +9,12 @@ build/
 venv/
 .env
 .env.*
+!.env.example
+!backend/.env.example
+instance/
+*.db
+*.sqlite
+*.sqlite3
 
 # VS Code
 .vscode/
