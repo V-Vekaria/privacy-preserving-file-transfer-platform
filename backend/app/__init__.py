@@ -38,8 +38,10 @@ def create_app(config_name="development"):
     # Blueprints
     from .routes.auth import auth_bp
     from .routes.files import files_bp
+    from .routes.detection import detection_bp
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(files_bp, url_prefix="/api/files")
+    app.register_blueprint(detection_bp, url_prefix="/api/detection")
 
     # Create tables
     with app.app_context():
