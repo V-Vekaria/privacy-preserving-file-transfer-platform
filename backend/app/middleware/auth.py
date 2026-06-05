@@ -26,7 +26,7 @@ def require_auth(f):
         except jwt.InvalidTokenError:
             return jsonify({"error": "Invalid token"}), 401
 
-        user = User.query.get(payload.get("sub"))
+        user = User.query.filter_by(user_id=int(payload.get("sub"))).first()
         if not user:
             return jsonify({"error": "User not found"}), 401
 

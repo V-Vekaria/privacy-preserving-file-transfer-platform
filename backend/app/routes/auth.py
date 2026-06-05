@@ -22,7 +22,7 @@ def _check_password(plain: str, hashed: str) -> bool:
 def _issue_token(user_id: int, username: str) -> str:
     """Issue a signed JWT valid for 24 hours."""
     payload = {
-        "sub": user_id,
+        "sub": str(user_id),
         "username": username,
         "iat": datetime.now(timezone.utc),
         "exp": datetime.now(timezone.utc) + timedelta(hours=24),
