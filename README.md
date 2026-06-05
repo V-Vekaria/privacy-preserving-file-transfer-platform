@@ -1,7 +1,7 @@
 # SecureTransfer — Privacy-Preserving File Transfer Platform
 
 > COM668 Computing Project · BSc (Hons) Computing · Ulster University · 2024/2025  
-> Student: Vishnu Vekaria · B00969091 · Mentor: Mr. Prathap Soma
+> Student: Vishnu Vekaria
 
 ---
 
