@@ -22,9 +22,9 @@ This project demonstrates that meaningful anomaly detection can operate entirely
 | AT3 Week 2 | Auth routes + JWT | ✅ Complete |
 | AT3 Week 3 | File upload + metadata logging | ✅ Complete |
 | AT3 Week 4 | Z-score + IQR detection engine | ✅ Complete |
-| AT3 Week 5 | Angular init + auth module | 🔄 In Progress |
-| AT3 Week 6 | Upload component + dashboard | ⏳ Pending |
-| AT3 Week 7 | Testing + fixes | ⏳ Pending |
+| AT3 Week 5 | Angular init + auth module | ✅ Complete |
+| AT3 Week 6 | Upload component + dashboard | ✅ Complete |
+| AT3 Week 7 | Testing + fixes | 🔄 In Progress |
 | AT3 Week 8 | Demo video + submission | ⏳ Pending |
 
 **Deadline: 7 July 2025, 12:00 noon**
