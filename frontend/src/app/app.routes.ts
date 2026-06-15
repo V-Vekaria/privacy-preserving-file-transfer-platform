@@ -8,10 +8,16 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   {
+    path: 'upload',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./upload/upload').then(m => m.UploadComponent),
+  },
+  {
     path: 'dashboard',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./dashboard/dashboard').then(m => m.Dashboard)
+      import('./dashboard/dashboard').then(m => m.Dashboard),
   },
-  { path: '**', redirectTo: 'login' }
+  { path: '**', redirectTo: 'login' },
 ];

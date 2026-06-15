@@ -1,0 +1,158 @@
+/* upload.css — matches AT2 V2 design tokens (blue: #1a5fa8) */
+
+.upload-page {
+  min-height: 100vh;
+  background: #f0f4f8;
+}
+
+/* Nav */
+.nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1a5fa8;
+  padding: 0.75rem 2rem;
+}
+.nav-brand {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.nav-links { display: flex; gap: 0.5rem; }
+.nav-link {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.4);
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.35rem 0.9rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.15s;
+}
+.nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.18); }
+
+/* Container */
+.upload-container {
+  max-width: 600px;
+  margin: 3rem auto;
+  padding: 2.5rem 2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+.upload-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a5fa8;
+  margin: 0 0 1.5rem;
+  text-align: center;
+}
+
+/* Drop zone */
+.drop-zone {
+  border: 2px dashed #b3d4f5;
+  border-radius: 10px;
+  background: #e8f4ff;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  margin-bottom: 1.25rem;
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: #1a5fa8;
+  background: #d1eaff;
+}
+.drop-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.drop-label { color: #1a5fa8; font-weight: 500; margin: 0; }
+.drop-sub { font-size: 0.8rem; color: #6b7280; font-weight: 400; }
+.hidden-input { display: none; }
+
+/* Status bar */
+.status-bar {
+  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.status-encrypting { background: #fff7e6; color: #92400e; border: 1px solid #fcd34d; }
+.status-uploading  { background: #eff6ff; color: #1a5fa8; border: 1px solid #bfdbfe; }
+.status-done       { background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
+.status-error      { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
+
+/* File preview */
+.file-preview {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.preview-row { display: flex; gap: 0.75rem; margin-bottom: 0.35rem; font-size: 0.85rem; }
+.preview-label { color: #6b7280; font-weight: 600; min-width: 50px; }
+.preview-value { color: #1e293b; }
+.hidden-name  { color: #6b7280; font-style: italic; }
+.key-notice   { color: #1a5fa8; font-style: italic; font-size: 0.8rem; }
+
+/* Upload result */
+.result-card {
+  background: #ecfdf5;
+  border: 1px solid #6ee7b7;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+.result-success { color: #065f46; font-weight: 700; margin: 0 0 0.35rem; }
+.result-detail  { color: #374151; font-size: 0.85rem; margin: 0.2rem 0; }
+
+/* Error */
+.error-banner {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  color: #b91c1c;
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+/* CTA button */
+.btn-upload {
+  width: 100%;
+  padding: 0.85rem;
+  background: #1a5fa8;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+  margin-bottom: 0.75rem;
+}
+.btn-upload:hover:not(:disabled) { background: #1548a0; }
+.btn-upload:disabled { background: #94a3b8; cursor: not-allowed; }
+
+/* Spinner */
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.payload-note {
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.75rem;
+  margin: 0;
+}

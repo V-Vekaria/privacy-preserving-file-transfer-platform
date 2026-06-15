@@ -1,1 +1,119 @@
-<p>dashboard works!</p>
+<!-- dashboard.html — AT2 V2 wireframe: Usage and Anomaly Dashboard -->
+<div class="dashboard-page">
+
+  <!-- Nav -->
+  <nav class="nav-bar">
+    <span class="nav-brand">SecureTransfer</span>
+    <div class="nav-links">
+      <button class="nav-link" (click)="goToUpload()">Upload</button>
+      <button class="nav-link active">Dashboard</button>
+      <button class="nav-link" (click)="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="dash-container">
+    <h2 class="dash-title">Usage and Anomaly Dashboard</h2>
+
+    <!-- Loading -->
+    @if (loading()) {
+      <div class="loading-state">Loading dashboard…</div>
+    }
+
+    <!-- Error -->
+    @if (error()) {
+      <div class="error-banner">{{ error() }}</div>
+    }
+
+    @if (!loading() && !error() && stats()) {
+      <!-- Stat cards -->
+      <div class="stat-cards">
+        <div class="stat-card card-blue">
+          <p class="stat-value">{{ stats()!.stat_cards.total_uploads }}</p>
+          <p class="stat-label">Total Uploads</p>
+        </div>
+        <div class="stat-card card-red">
+          <p class="stat-value">{{ stats()!.stat_cards.flagged_anomalies }}</p>
+          <p class="stat-label">Flagged Anomalies</p>
+        </div>
+        <div class="stat-card card-blue">
+          <p class="stat-value">{{ formatBytes(stats()!.stat_cards.avg_file_size_bytes) }}</p>
+          <p class="stat-label">Avg File Size</p>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <h3 class="chart-title">Upload Frequency</h3>
+          <p class="chart-sub">Uploads over time (last 30 days)</p>
+          @if (stats()!.frequency_chart.length === 0) {
+            <div class="chart-empty">No upload data yet.</div>
+          } @else {
+            <canvas #freqCanvas></canvas>
+          }
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">File Size Distribution</h3>
+          <p class="chart-sub">Histogram view</p>
+          @if (stats()!.size_distribution.length === 0) {
+            <div class="chart-empty">No upload data yet.</div>
+          } @else {
+            <canvas #sizeCanvas></canvas>
+          }
+        </div>
+      </div>
+
+      <!-- Anomaly events table -->
+      <div class="events-card">
+        <div class="events-header">
+          <h3 class="events-title">Recent Anomaly Events</h3>
+          <div class="filter-controls">
+            <button
+              class="filter-btn"
+              [class.active]="filter() === 'all'"
+              (click)="setFilter('all')"
+            >All Events</button>
+            <button
+              class="filter-btn"
+              [class.active]="filter() === 'flagged'"
+              (click)="setFilter('flagged')"
+            >Show Flagged Only</button>
+          </div>
+        </div>
+
+        @if (filteredEvents().length === 0) {
+          <div class="events-empty">No events to display.</div>
+        } @else {
+          <table class="events-table">
+            <thead>
+              <tr>
+                <th>Upload Event</th>
+                <th>Size</th>
+                <th>Timestamp</th>
+                <th>Z-Score</th>
+                <th>IQR</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (event of filteredEvents(); track event.event_id) {
+                <tr [class.row-flagged]="event.anomaly_flag" [class.row-normal]="!event.anomaly_flag">
+                  <td>Upload Event #{{ event.event_id }}</td>
+                  <td>{{ formatBytes(event.enc_file_size) }}</td>
+                  <td>{{ event.timestamp | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td>{{ event.z_score !== null ? (event.z_score | number: '1.1-2') : '—' }}</td>
+                  <td>{{ event.iqr_label | titlecase }}</td>
+                  <td>
+                    <span [class]="event.anomaly_flag ? 'badge-flagged' : 'badge-ok'">
+                      {{ event.anomaly_flag ? 'FLAGGED' : 'OK' }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    }
+  </div>
+</div>
