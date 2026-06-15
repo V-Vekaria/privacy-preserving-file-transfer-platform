@@ -1,0 +1,56 @@
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="trust-badge">🔒 Zero-Knowledge Encrypted — Your files, your keys</div>
+
+    <h1 class="brand-title">SecureTransfer</h1>
+    <h2 class="form-title">Create Account</h2>
+
+    <div class="field-group">
+      <label for="username">Username</label>
+      <input
+        id="username"
+        type="text"
+        [(ngModel)]="username"
+        placeholder="Choose a username..."
+        autocomplete="username"
+      />
+    </div>
+
+    <div class="field-group">
+      <label for="password">Password</label>
+      <div class="password-wrapper">
+        <input
+          id="password"
+          [type]="showPassword ? 'text' : 'password'"
+          [(ngModel)]="password"
+          placeholder="Min. 8 characters..."
+          autocomplete="new-password"
+        />
+        <button type="button" class="toggle-btn" (click)="showPassword = !showPassword">
+          {{ showPassword ? 'Hide' : 'Show' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label for="confirmPassword">Confirm Password</label>
+      <input
+        id="confirmPassword"
+        [type]="showPassword ? 'text' : 'password'"
+        [(ngModel)]="confirmPassword"
+        placeholder="Repeat password..."
+        autocomplete="new-password"
+      />
+    </div>
+
+    <div class="validation-zone" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <button class="btn-primary" (click)="onSubmit()" [disabled]="loading">
+      {{ loading ? 'Creating account...' : 'Create Account Securely' }}
+    </button>
+
+    <p class="switch-link">Already have an account? <a routerLink="/login">Sign in</a></p>
+  </div>
+</div>
