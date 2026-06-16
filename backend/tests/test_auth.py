@@ -128,6 +128,32 @@ def test_protected_route_no_token(client):
     assert resp.status_code == 200
 
 
+def test_register_returns_key_salt_for_vault_derivation(client):
+    resp = client.post("/api/auth/register", json={
+        "username": "vaultuser",
+        "email": "vault@test.com",
+        "password": "securepass123",
+    })
+    data = resp.get_json()
+    assert "key_salt" in data
+    assert len(data["key_salt"]) > 0
+
+
+def test_login_returns_key_salt(client):
+    client.post("/api/auth/register", json={
+        "username": "saltcheck",
+        "email": "sc@test.com",
+        "password": "securepass123",
+    })
+    resp = client.post("/api/auth/login", json={
+        "username": "saltcheck",
+        "password": "securepass123",
+    })
+    data = resp.get_json()
+    assert "key_salt" in data
+    assert len(data["key_salt"]) > 0
+
+
 def test_jwt_token_is_valid(client):
     import jwt as pyjwt
     client.post("/api/auth/register", json={

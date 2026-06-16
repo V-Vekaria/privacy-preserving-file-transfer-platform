@@ -1,9 +1,4 @@
-"""
-Week 3 — file upload, metadata logging, and retrieval tests.
-
-Each test maps to a functional requirement so the suite doubles as
-traceable evidence for the AT3 code walkthrough.
-"""
+"""File upload, metadata logging, retrieval, and zero-knowledge boundary tests."""
 
 import base64
 import pytest
@@ -135,6 +130,18 @@ def test_get_file_returns_ciphertext_and_iv(client):
     body = resp.get_json()
     assert body["ciphertext"] == payload["ciphertext"]
     assert body["iv"] == payload["iv"]
+
+
+def test_plaintext_filename_never_stored(client):
+    token = _register_and_token(client)
+    payload = {
+        **_sample_payload(),
+        "filename_enc": base64.b64encode(b"encrypted_name").decode(),
+        "filename_iv": "aabbccddaabbccdd",
+    }
+    client.post("/api/files/upload", json=payload, headers=_auth(token))
+    stored = EncryptedFile.query.first()
+    assert stored.filename is None  # server never stores plaintext filename
 
 
 def test_user_cannot_access_another_users_file(client):
