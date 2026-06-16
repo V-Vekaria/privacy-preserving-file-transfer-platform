@@ -1,0 +1,155 @@
+<div class="home-page">
+
+  <!-- Nav -->
+  <nav class="nav-bar">
+    <span class="nav-brand">🔐 SecureTransfer</span>
+    <div class="nav-links">
+      <a routerLink="/login" class="nav-link">Log In</a>
+      <a routerLink="/register" class="nav-link nav-link-cta">Get Started Free</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">Zero-Knowledge Encryption</div>
+      <h1 class="hero-title">Your files, encrypted<br><span class="hero-accent">before they leave your device.</span></h1>
+      <p class="hero-sub">
+        SecureTransfer uses AES-256 encryption in your browser — the server stores only ciphertext.
+        Your password never travels. Your key never leaves your tab.
+      </p>
+      <div class="hero-actions">
+        <a routerLink="/register" class="btn-primary">Start Encrypting — It's Free</a>
+        <a routerLink="/login" class="btn-ghost">I already have an account</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="visual-card">
+        <div class="visual-row">
+          <span class="visual-label">Your file</span>
+          <span class="visual-value">report.pdf</span>
+        </div>
+        <div class="visual-arrow">↓ AES-256-GCM in browser</div>
+        <div class="visual-row visual-row-enc">
+          <span class="visual-label">Stored on server</span>
+          <span class="visual-value visual-cipher">Xk9mR2…aN4pQ</span>
+        </div>
+        <div class="visual-tag">Server sees: 🔒 ciphertext only</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="section">
+    <div class="section-inner">
+      <h2 class="section-title">How it works</h2>
+      <p class="section-sub">Three steps. All crypto happens in your browser.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3 class="step-title">Create an account</h3>
+          <p class="step-desc">Your password runs through 200,000 rounds of PBKDF2 to derive your personal encryption key — we never store your password or key.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3 class="step-title">Upload &amp; encrypt</h3>
+          <p class="step-desc">Drop any file. Your browser encrypts it with AES-256-GCM before it leaves your device. Even the filename is encrypted.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3 class="step-title">Share or download</h3>
+          <p class="step-desc">Generate a 24-hour share link for recipients. They decrypt in their browser — your key is never sent to anyone.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="section section-alt">
+    <div class="section-inner">
+      <h2 class="section-title">Why SecureTransfer?</h2>
+      <div class="features">
+        <div class="feature-card">
+          <div class="feature-icon">🔑</div>
+          <h3 class="feature-title">One master key</h3>
+          <p class="feature-desc">Log in once. Every file you upload is encrypted with a single vault key derived from your password — no per-file passphrases to remember.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🕵️</div>
+          <h3 class="feature-title">Zero-knowledge server</h3>
+          <p class="feature-desc">The server stores only encrypted bytes. Even if the database is breached, attackers get ciphertext they cannot read without your password.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📡</div>
+          <h3 class="feature-title">Anomaly detection</h3>
+          <p class="feature-desc">Every transfer is analysed with Z-score and IQR algorithms. Unusual file sizes trigger an automatic alert so you know if something looks off.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⏱</div>
+          <h3 class="feature-title">24-hour share links</h3>
+          <p class="feature-desc">Generate a time-limited link for anyone. Links expire automatically — no need to remember to revoke them. Recipients decrypt in their browser.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🛡</div>
+          <h3 class="feature-title">Brute-force protection</h3>
+          <p class="feature-desc">Login attempts are rate-limited to 3 per 10 seconds. Repeated failures are blocked before an attacker can guess your password.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <h3 class="feature-title">No plugins needed</h3>
+          <p class="feature-desc">All encryption uses the browser's built-in Web Crypto API — no extensions, no downloads, no trust in third-party software.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison -->
+  <section class="section">
+    <div class="section-inner">
+      <h2 class="section-title">SecureTransfer vs the alternatives</h2>
+      <div class="compare-table">
+        <div class="compare-row compare-header">
+          <span></span>
+          <span>SecureTransfer</span>
+          <span>Google Drive</span>
+          <span>Dropbox</span>
+        </div>
+        <div class="compare-row">
+          <span>Client-side encryption</span>
+          <span class="yes">✓</span><span class="no">✗</span><span class="no">✗</span>
+        </div>
+        <div class="compare-row">
+          <span>Server sees plaintext</span>
+          <span class="yes">Never</span><span class="no">Yes</span><span class="no">Yes</span>
+        </div>
+        <div class="compare-row">
+          <span>Encrypted filenames</span>
+          <span class="yes">✓</span><span class="no">✗</span><span class="no">✗</span>
+        </div>
+        <div class="compare-row">
+          <span>Time-limited share links</span>
+          <span class="yes">✓ (24h)</span><span class="no">Manual</span><span class="no">Manual</span>
+        </div>
+        <div class="compare-row">
+          <span>Anomaly detection</span>
+          <span class="yes">✓</span><span class="no">✗</span><span class="no">✗</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2 class="cta-title">Ready to transfer files the private way?</h2>
+    <p class="cta-sub">Your encryption key is derived in your browser. We never see it.</p>
+    <a routerLink="/register" class="btn-primary btn-large">Create Your Vault — Free</a>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <span>SecureTransfer · AES-256-GCM · PBKDF2 · Zero-Knowledge</span>
+  </footer>
+
+</div>
