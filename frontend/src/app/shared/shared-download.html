@@ -1,0 +1,84 @@
+<div class="shared-page">
+  <div class="shared-card">
+
+    <div class="brand-bar">
+      <span class="brand-icon">🔒</span>
+      <span class="brand-name">SecureTransfer</span>
+    </div>
+
+    @if (status === 'loading') {
+      <p class="state-msg">Verifying share link…</p>
+    }
+
+    @if (status === 'expired') {
+      <div class="state-error">
+        <p class="state-icon">⏰</p>
+        <h2>Share link has expired</h2>
+        <p>This link was valid for 24 hours. Ask the sender to generate a new one.</p>
+      </div>
+    }
+
+    @if (status === 'error' && !filename) {
+      <div class="state-error">
+        <p class="state-icon">❌</p>
+        <h2>Invalid share link</h2>
+        <p>{{ errorMsg }}</p>
+      </div>
+    }
+
+    @if (status !== 'loading' && status !== 'expired' && filename) {
+      <h2 class="card-title">You received a secure file</h2>
+      <p class="card-sub">This file is end-to-end encrypted. Decryption happens entirely in your browser — the server never sees your passphrase or the file contents.</p>
+
+      <div class="file-preview">
+        <span class="file-icon">📄</span>
+        <div>
+          <p class="file-name">{{ filename }}</p>
+          <p class="file-meta">Link expires {{ expiresAt }}</p>
+        </div>
+      </div>
+
+      <div class="passphrase-group">
+        <label class="pass-label">Enter share passphrase to decrypt</label>
+        <p class="pass-hint">The sender set a passphrase when creating this link — ask them for it via WhatsApp, text, or phone. It is NOT their login password.</p>
+        <div class="passphrase-row">
+          <input
+            [type]="showPassphrase ? 'text' : 'password'"
+            [(ngModel)]="passphrase"
+            placeholder="Enter passphrase…"
+            class="passphrase-input"
+            autocomplete="off"
+          />
+          <button type="button" class="toggle-btn" (click)="showPassphrase = !showPassphrase">
+            {{ showPassphrase ? 'Hide' : 'Show' }}
+          </button>
+        </div>
+      </div>
+
+      @if (errorMsg) {
+        <div class="error-banner">{{ errorMsg }}</div>
+      }
+
+      @if (status === 'done') {
+        <div class="success-banner">
+          ✓ File decrypted and saved to your device. Decryption happened entirely in this browser — no plaintext was ever sent to the server.
+        </div>
+      }
+
+      <button
+        class="btn-decrypt"
+        [disabled]="status === 'decrypting' || status === 'done'"
+        (click)="decrypt()"
+      >
+        @if (status === 'decrypting') { Decrypting… }
+        @else if (status === 'done') { ✓ Downloaded }
+        @else { 🔓 Decrypt & Download }
+      </button>
+
+      <div class="zk-note">
+        <strong>Zero-Knowledge:</strong> The server stores only ciphertext. Your passphrase derives the AES-256 key locally via PBKDF2 — it never leaves this browser tab.
+      </div>
+    }
+
+  </div>
+</div>
