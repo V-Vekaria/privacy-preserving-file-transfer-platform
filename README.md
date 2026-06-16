@@ -7,125 +7,183 @@
 
 ## Overview
 
-SecureTransfer is a web-based file transfer platform that enforces **client-side AES-GCM encryption** before any data reaches the server, ensuring plaintext file content is never accessible server-side (zero-knowledge boundary). On top of this privacy-preserving storage layer, the platform runs a **metadata-only anomaly detection engine** using Z-score and IQR statistical methods — detecting abnormal usage patterns without ever inspecting file content.
+SecureTransfer is a zero-knowledge file transfer platform. All encryption happens **in the browser** using the Web Crypto API — the server stores only ciphertext and never has access to file content, filenames, or encryption keys.
 
-This project demonstrates that meaningful anomaly detection can operate entirely within a zero-knowledge architectural boundary using only non-semantic structured metadata (encrypted file size, timestamp, transfer frequency).
+The platform uses a **vault architecture** (inspired by Bitwarden) where a single master key is derived from the user's login password via PBKDF2 (200,000 iterations, SHA-256). This key encrypts every file and every filename. It is stored only in `sessionStorage` and never transmitted to the server.
 
----
-
-## Project Status
-
-| Phase | Description | Status |
-|-------|-------------|--------|
-| AT2 | Challenge Definition Report | ✅ Submitted |
-| AT3 Week 1 | Flask scaffold + models | ✅ Complete |
-| AT3 Week 2 | Auth routes + JWT | ✅ Complete |
-| AT3 Week 3 | File upload + metadata logging | ✅ Complete |
-| AT3 Week 4 | Z-score + IQR detection engine | ✅ Complete |
-| AT3 Week 5 | Angular init + auth module | ✅ Complete |
-| AT3 Week 6 | Upload component + dashboard | ✅ Complete |
-| AT3 Week 7 | Testing + fixes | 🔄 In Progress |
-| AT3 Week 8 | Demo video + submission | ⏳ Pending |
-
-**Deadline: 7 July 2025, 12:00 noon**
+On top of the zero-knowledge storage layer, a **metadata-only anomaly detection engine** runs Z-score and IQR statistical analysis on non-semantic transfer attributes (encrypted file size, timestamp, transfer frequency) — detecting abnormal patterns without ever inspecting file content.
 
 ---
 
 ## Tech Stack
 
 ### Backend
-- **Python / Flask** — REST API server
-- **SQLite + SQLAlchemy** — database ORM
-- **pyjwt** — JWT-based session tokens
-- **bcrypt** — password hashing
+- **Python / Flask** — REST API with Blueprint structure
+- **SQLite + SQLAlchemy** — ORM with 5-table schema
+- **pyjwt** — JWT authentication (24-hour tokens, HS256)
+- **bcrypt** — password hashing (12 rounds)
+- **Flask-Limiter** — rate limiting on auth endpoints
+- **Flask-CORS** — cross-origin support for Angular frontend
+- **pytest** — 50 tests across 4 test modules
 
 ### Frontend
-- **Angular** — SPA framework
-- **Web Crypto API** — in-browser AES-GCM encryption (key never leaves client)
+- **Angular 17** — standalone components, lazy-loaded routes
+- **Web Crypto API** — PBKDF2 + AES-256-GCM, all in-browser
 - **Chart.js** — dashboard visualisations
-
-### Dev Environment
-- OS: Windows
-- Editor: VS Code
-- Node: v24.15.0 · npm: 11.12.1
+- **RxJS** — reactive HTTP and async vault operations
 
 ---
 
-## Core Features (Planned)
+## Features
 
-- **Client-Side Encryption** — AES-GCM via Web Crypto API; key generated and retained in browser only; IV transmitted with ciphertext
-- **Zero-Knowledge Storage** — server stores ciphertext binary; no decryption pathway server-side
-- **Secure Authentication** — bcrypt password hashing; JWT session management
-- **Metadata Logging** — non-semantic attributes only: encrypted file size, timestamp, transfer frequency; no filenames stored
-- **Anomaly Detection Engine** — Z-score and IQR thresholding; real-time trigger on upload + periodic batch recalibration
-- **Analytics Dashboard** — colour-coded stat cards, upload frequency chart, file size distribution histogram, flagged anomaly events table with Z-score and IQR values per row
+### Authentication
+- Registration with email, username, password (bcrypt, 12 rounds)
+- Login with JWT (24-hour expiry)
+- Rate limiting: 5 registrations/min, 10 logins/min, 3 logins/10s
+- `key_salt` generated per user at registration, returned on login for client-side key derivation
+
+### Vault Architecture (Zero-Knowledge)
+- On login: `PBKDF2(password + key_salt, 200k iterations, SHA-256)` → AES-256 master key
+- Master key stored in `sessionStorage` only — cleared when the tab closes
+- Never transmitted to the server under any circumstances
+- All files and filenames encrypted with this single vault key
+
+### File Management
+- **Upload** — AES-256-GCM encryption in browser before upload; filename encrypted separately
+- **My Files** — filenames auto-decrypted client-side on load; shows `••••••••••` when vault is locked
+- **Download** — one-click; ciphertext fetched from server, decrypted in browser
+- **Delete** — cascades through share tokens, anomaly results, and metadata
+
+### Secure Sharing
+- Owner generates a 24-hour share link and sets a **per-share passphrase**
+- Client wraps the vault key: `PBKDF2(share_passphrase)` → AES-GCM encrypt(vault key raw bytes) → `wrapped_key` stored on token
+- Recipient opens link, enters share passphrase → unwraps vault key → decrypts file
+- Owner's login password is never shared or exposed
+- Tokens expire automatically after 24 hours; owner can revoke early
+- No authentication required for recipients
+
+### Anomaly Detection
+- Fires automatically on every upload
+- Dual algorithm: Z-score + IQR on encrypted file size metadata
+- Results stored and displayed per file (✓ Normal / ⚠ Anomaly badge)
+- Batch re-analysis endpoint for recalibration
+- Ownership enforced: users can only analyse their own records
+
+### Dashboard
+- Total files, total size, anomaly count stat cards
+- Upload frequency chart (Chart.js)
+- File size distribution
+- Anomaly events table with Z-score and IQR values
 
 ---
 
 ## Architecture
 
 ```
-Client (Browser)
-├── Web Crypto API  →  AES-GCM encrypt (key stays here)
-├── Angular UI      →  file select, upload, dashboard
+Browser
+├── PBKDF2(password + key_salt)  →  AES-256 vault key (sessionStorage only)
+├── AES-256-GCM encrypt(file)    →  ciphertext
+├── AES-256-GCM encrypt(filename)→  filename_enc + filename_iv
 │
-│   [HTTPS / TLS — only ciphertext + IV transmitted]
+│   [Only ciphertext + IV sent over HTTPS — no plaintext ever]
 │
-Flask Server
-├── Auth Module     →  bcrypt hash, JWT issue/verify
-├── API Layer       →  file endpoints, metadata logging, dashboard data
-├── Detection Engine→  Z-score + IQR, anomaly flagging, batch recalibration
+Flask API
+├── /api/auth       →  register, login (rate-limited, bcrypt, JWT)
+├── /api/files      →  upload, list, download, delete (ownership enforced)
+├── /api/share      →  create token, retrieve ciphertext, revoke
+├── /api/detection  →  analyse, batch (Z-score + IQR)
+└── /api/dashboard  →  aggregated stats
 │
-Storage
-├── Encrypted File Storage  →  ciphertext binary
-├── Metadata DB             →  enc_file_size, timestamp, transfer_frequency
-└── Anomaly Results DB      →  zscore_value, iqr_threshold, anomaly_flag
+SQLite (via SQLAlchemy)
+├── user              →  user_id, username, email, password_hashed, key_salt
+├── encrypted_file    →  file_id, user_id, encrypted_data, iv, filename_enc, filename_iv
+├── metadata          →  metadata_id, file_id, enc_file_size, timestamp, transfer_frequency
+├── anomaly_result    →  result_id, metadata_id, zscore_value, iqr_threshold, anomaly_flag
+└── share_token       →  token, file_id, expires_at, wrapped_key, share_salt, share_iv
 ```
 
 ---
 
-## Database Schema (4 tables)
+## Database Schema
 
 | Table | Key Fields |
 |-------|-----------|
-| `USER` | user_id, username, email, password_hashed, created_at |
-| `ENCRYPTED_FILE` | file_id, user_id, encrypted_data, upload_timestamp, iv |
-| `METADATA` | metadata_id, file_id, user_id, enc_file_size, timestamp, transfer_frequency |
-| `ANOMALY_RESULT` | result_id, metadata_id, zscore_value, iqr_threshold, anomaly_flag, detected_at |
+| `user` | user_id, username, email, password_hashed, key_salt, created_at |
+| `encrypted_file` | file_id, user_id, encrypted_data, iv, filename_enc, filename_iv, upload_timestamp |
+| `metadata` | metadata_id, file_id, user_id, enc_file_size, timestamp, transfer_frequency |
+| `anomaly_result` | result_id, metadata_id, zscore_value, iqr_threshold, anomaly_flag, detected_at |
+| `share_token` | token_id, token, file_id, owner_id, expires_at, wrapped_key, share_salt, share_iv |
 
 ---
 
 ## Threat Model
 
-- **Server model:** honest-but-curious (server follows protocol but may attempt inference from stored data)
-- **Out of scope:** compromised client devices, nation-state adversaries, ML-based detection, blockchain integration, enterprise multi-tenancy
+- **Server model:** honest-but-curious — server follows the protocol but may attempt inference from stored data. Mitigated by encrypting both file content and filenames before upload.
+- **Database breach:** attacker obtains only ciphertext, encrypted filenames, bcrypt hashes, and PBKDF2 salts. No plaintext is recoverable without the user's password.
+- **Share link interception:** a stolen link alone is insufficient — the per-share passphrase (delivered out-of-band) is required to unwrap the vault key.
+- **Out of scope:** compromised client devices, nation-state adversaries, side-channel attacks.
 
 ---
 
-## Development Conventions
+## Running Locally
 
-- **Branch strategy:** one feature branch per component
-- **Commit format:** Conventional Commits — `feat/fix/chore/test` prefixes
-- **Commit cadence:** ~3–4 commits/week · ~28 total commits target
-- **Scope discipline:** Must requirements implemented before Should/Could items
+### Backend
+```bash
+cd backend
+python -m venv .venv && .venv\Scripts\activate
+pip install -r requirements.txt
+flask run --port 5000
+```
+
+### Frontend
+```bash
+cd frontend
+npm install
+ng serve
+```
+
+Open `http://localhost:4200`
+
+### Tests
+```bash
+cd backend
+python -m pytest tests/ -v
+# 50 tests — auth, files, detection, share, dashboard
+```
 
 ---
 
-## Functional Requirements Summary
+## Functional Requirements
 
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| FR1 | Secure user registration + authentication | Must |
-| FR2 | Password hashing (bcrypt/Argon2) | Must |
-| FR3 | Client-side AES-GCM encryption before upload | Must |
-| FR4 | Keys generated + retained client-side only | Must |
-| FR5 | Server stores encrypted content only | Must |
-| FR6 | Metadata logging (size, timestamp, frequency) | Must |
-| FR7 | Z-score anomaly computation | Must |
-| FR8 | IQR threshold computation | Must |
-| FR9 | Flag entries exceeding thresholds | Must |
-| FR10 | Persist anomaly results for review | Must |
-| FR11 | Dashboard visualisation | Should |
+| ID | Requirement | Status |
+|----|-------------|--------|
+| FR1 | Secure user registration + authentication | ✅ |
+| FR2 | Password hashing (bcrypt, 12 rounds) | ✅ |
+| FR3 | Client-side AES-256-GCM encryption before upload | ✅ |
+| FR4 | Vault master key derived from password, never transmitted | ✅ |
+| FR5 | Server stores ciphertext only — no plaintext, no filenames | ✅ |
+| FR6 | Metadata logging (enc size, timestamp, frequency) | ✅ |
+| FR7 | Z-score anomaly computation | ✅ |
+| FR8 | IQR threshold computation | ✅ |
+| FR9 | Flag entries exceeding thresholds, auto-fire on upload | ✅ |
+| FR10 | Persist anomaly results, display per file | ✅ |
+| FR11 | Dashboard visualisation with Chart.js | ✅ |
+| FR12 | Secure 24-hour share links with per-share key wrapping | ✅ |
+| FR13 | Rate limiting on authentication endpoints | ✅ |
+| FR14 | File delete with cascade | ✅ |
+
+---
+
+## Project Status
+
+| Phase | Status |
+|-------|--------|
+| Backend API (auth, files, detection, share, dashboard) | ✅ Complete |
+| Frontend (Angular 17, vault, upload, files, share, dashboard) | ✅ Complete |
+| Test suite (50 tests, 0 warnings) | ✅ Complete |
+| Demo video | ⏳ Pending |
+
+**Deadline: 7 July 2025, 12:00 noon**
 
 ---
 
@@ -133,8 +191,6 @@ Storage
 
 - **Module:** COM668 Computing Project
 - **Institution:** Ulster University
-- **PSG:** PSG-Q1
-- **AT2 Report:** Challenge Definition Report (submitted 23 April 2025)
 - **AT3 Deliverable:** Working prototype + demo video (due 7 July 2025)
 - **AT4 Deliverable:** Final evaluation report (due 11 August 2025)
 
