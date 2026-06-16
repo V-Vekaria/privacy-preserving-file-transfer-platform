@@ -1,9 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { UploadService, UploadResult } from './upload.service';
+import { UploadService, UploadResult, AnalyseResult } from './upload.service';
+import { VaultService } from '../auth/vault.service';
+import { AuthService } from '../auth/auth.service';
 
-type EncStatus = 'idle' | 'encrypting' | 'uploading' | 'done' | 'error';
+type EncStatus = 'idle' | 'encrypting' | 'uploading' | 'detecting' | 'done' | 'error';
 
 @Component({
   selector: 'app-upload',
@@ -14,33 +16,30 @@ type EncStatus = 'idle' | 'encrypting' | 'uploading' | 'done' | 'error';
 })
 export class UploadComponent {
   private uploadService = inject(UploadService);
+  private vault = inject(VaultService);
   private router = inject(Router);
+  private auth = inject(AuthService);
 
   selectedFile: File | null = null;
   encStatus: EncStatus = 'idle';
   errorMessage = '';
   uploadResult: UploadResult | null = null;
+  anomalyResult: AnalyseResult | null = null;
   isDragOver = false;
+
+  get vaultLocked(): boolean {
+    return !this.vault.isUnlocked;
+  }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files?.length) {
-      this._setFile(input.files[0]);
-    }
+    if (input.files?.length) this._setFile(input.files[0]);
   }
 
-  onDragOver(event: DragEvent): void {
-    event.preventDefault();
-    this.isDragOver = true;
-  }
-
-  onDragLeave(): void {
-    this.isDragOver = false;
-  }
-
+  onDragOver(event: DragEvent): void { event.preventDefault(); this.isDragOver = true; }
+  onDragLeave(): void { this.isDragOver = false; }
   onDrop(event: DragEvent): void {
-    event.preventDefault();
-    this.isDragOver = false;
+    event.preventDefault(); this.isDragOver = false;
     const file = event.dataTransfer?.files?.[0];
     if (file) this._setFile(file);
   }
@@ -50,11 +49,11 @@ export class UploadComponent {
     this.encStatus = 'idle';
     this.errorMessage = '';
     this.uploadResult = null;
+    this.anomalyResult = null;
   }
 
   upload(): void {
     if (!this.selectedFile) return;
-
     this.encStatus = 'encrypting';
     this.errorMessage = '';
 
@@ -62,49 +61,46 @@ export class UploadComponent {
       this.encStatus = 'uploading';
       this.uploadService.encryptAndUpload(this.selectedFile!).subscribe({
         next: (result: UploadResult) => {
-          this.encStatus = 'done';
           this.uploadResult = result;
+          this.encStatus = 'detecting';
+          this.uploadService.triggerDetection(result.metadata.metadata_id).subscribe({
+            next: (anomaly: AnalyseResult) => { this.anomalyResult = anomaly; this.encStatus = 'done'; },
+            error: () => { this.encStatus = 'done'; },
+          });
         },
         error: (err: { error?: { error?: string } }) => {
           this.encStatus = 'error';
-          this.errorMessage =
-            err?.error?.error ?? 'Upload failed — please try again.';
+          this.errorMessage = err?.error?.error ?? 'Upload failed — please try again.';
         },
       });
     }, 300);
   }
 
-  goToDashboard(): void {
-    this.router.navigate(['/dashboard']);
-  }
+  goToDashboard(): void { this.router.navigate(['/dashboard']); }
+  logout(): void { this.auth.logout(); }
 
   get fileSizeLabel(): string {
     if (!this.selectedFile) return '';
-    const bytes = this.selectedFile.size;
-    if (bytes >= 1_048_576) return `${(bytes / 1_048_576).toFixed(1)} MB`;
-    if (bytes >= 1_024) return `${(bytes / 1_024).toFixed(1)} KB`;
-    return `${bytes} B`;
+    const b = this.selectedFile.size;
+    if (b >= 1_048_576) return `${(b / 1_048_576).toFixed(1)} MB`;
+    if (b >= 1_024) return `${(b / 1_024).toFixed(1)} KB`;
+    return `${b} B`;
   }
 
   get statusLabel(): string {
-    const map: Record<EncStatus, string> = {
-      idle: '',
-      encrypting: 'Encrypting client-side… AES-GCM',
+    return ({
+      idle: '', encrypting: 'Encrypting with your vault key (AES-256-GCM)…',
       uploading: 'Uploading encrypted payload…',
-      done: 'Upload complete — key retained client-side only',
+      detecting: 'Running anomaly detection (Z-score + IQR)…',
+      done: 'Complete — plaintext never left your browser',
       error: 'Upload failed',
-    };
-    return map[this.encStatus];
+    } as Record<EncStatus, string>)[this.encStatus];
   }
 
   get statusClass(): string {
-    const map: Record<EncStatus, string> = {
-      idle: '',
-      encrypting: 'status-encrypting',
-      uploading: 'status-uploading',
-      done: 'status-done',
-      error: 'status-error',
-    };
-    return map[this.encStatus];
+    return ({
+      idle: '', encrypting: 'status-encrypting', uploading: 'status-uploading',
+      detecting: 'status-detecting', done: 'status-done', error: 'status-error',
+    } as Record<EncStatus, string>)[this.encStatus];
   }
 }

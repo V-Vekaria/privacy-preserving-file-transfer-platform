@@ -1,99 +1,92 @@
-<!-- upload.html — AT2 V2 wireframe: Upload File Securely -->
 <div class="upload-page">
-
-  <!-- Nav bar -->
   <nav class="nav-bar">
     <span class="nav-brand">SecureTransfer</span>
     <div class="nav-links">
       <button class="nav-link active">Upload</button>
+      <button class="nav-link" routerLink="/files">My Files</button>
       <button class="nav-link" (click)="goToDashboard()">Dashboard</button>
-      <button class="nav-link" routerLink="/login">Logout</button>
+      <button class="nav-link" (click)="logout()">Logout</button>
     </div>
   </nav>
 
   <div class="upload-container">
     <h2 class="upload-title">Upload File Securely</h2>
+    <p class="upload-sub">Your file is encrypted in your browser before upload. The server stores only ciphertext it cannot read.</p>
+
+    <!-- Vault locked warning -->
+    @if (vaultLocked) {
+      <div class="vault-warning">
+        🔒 Your vault is locked. <a routerLink="/login">Log in again</a> to unlock it and upload files.
+      </div>
+    }
+
+    <!-- Vault unlocked indicator -->
+    @if (!vaultLocked) {
+      <div class="vault-ok">
+        ✓ Vault unlocked — files will be encrypted with your master key automatically
+      </div>
+    }
 
     <!-- Drop zone -->
     <div
       class="drop-zone"
       [class.drag-over]="isDragOver"
+      [class.disabled]="vaultLocked"
       (dragover)="onDragOver($event)"
       (dragleave)="onDragLeave()"
       (drop)="onDrop($event)"
-      (click)="fileInput.click()"
+      (click)="!vaultLocked && fileInput.click()"
     >
-      <input
-        #fileInput
-        type="file"
-        class="hidden-input"
-        (change)="onFileSelected($event)"
-      />
+      <input #fileInput type="file" class="hidden-input" (change)="onFileSelected($event)" />
       <div class="drop-icon">🔒</div>
-      <p class="drop-label">
-        Drag and drop file here or click to browse
-        <br />
-        <span class="drop-sub">Supported formats: All file types</span>
-      </p>
+      @if (selectedFile) {
+        <p class="drop-label"><strong>{{ selectedFile.name }}</strong><br/><span class="drop-sub">{{ fileSizeLabel }} — filename + contents will be encrypted</span></p>
+      } @else {
+        <p class="drop-label">Drag and drop file here or click to browse<br/><span class="drop-sub">All file types · Max 50 MB</span></p>
+      }
     </div>
 
-    <!-- Encryption status indicator (FR3 trust signal) -->
+    <!-- Encryption status -->
     @if (encStatus !== 'idle') {
-      <div class="status-bar" [ngClass]="statusClass">
-        Encryption Status: {{ statusLabel }}
-      </div>
+      <div class="status-bar" [ngClass]="statusClass">{{ statusLabel }}</div>
     }
 
-    <!-- File preview — filename HIDDEN (zero-knowledge) -->
-    @if (selectedFile) {
-      <div class="file-preview">
-        <div class="preview-row">
-          <span class="preview-label">Name:</span>
-          <span class="preview-value hidden-name">[HIDDEN]</span>
-        </div>
-        <div class="preview-row">
-          <span class="preview-label">Size:</span>
-          <span class="preview-value">{{ fileSizeLabel }} (will be encrypted)</span>
-        </div>
-        <div class="preview-row">
-          <span class="preview-label">Key:</span>
-          <span class="preview-value key-notice">[CLIENT ONLY — never sent to server]</span>
-        </div>
-      </div>
-    }
-
-    <!-- Upload result -->
+    <!-- Result -->
     @if (encStatus === 'done' && uploadResult) {
       <div class="result-card">
         <p class="result-success">✓ File uploaded securely</p>
-        <p class="result-detail">
-          Encrypted size: {{ uploadResult.metadata.enc_file_size | number }} bytes
-        </p>
-        <p class="result-detail">
-          Transfer frequency (24 h): {{ uploadResult.metadata.transfer_frequency }}
-        </p>
+        <p class="result-detail">Encrypted size: {{ uploadResult.metadata.enc_file_size | number }} bytes</p>
+        <p class="result-detail">Transfer count (24 h): {{ uploadResult.metadata.transfer_frequency }}</p>
+        @if (anomalyResult) {
+          <div class="anomaly-result" [class.anomaly-ok]="!anomalyResult.is_flagged" [class.anomaly-warn]="anomalyResult.is_flagged">
+            @if (anomalyResult.is_flagged) {
+              <strong>⚠ Anomaly Detected</strong> — Z-score: {{ anomalyResult.zscore | number:'1.2-2' }}, IQR: exceeded. This upload is statistically unusual compared to your history.
+            } @else {
+              <strong>✓ No Anomaly</strong> — Transfer pattern normal (Z-score: {{ anomalyResult.zscore !== null ? (anomalyResult.zscore | number:'1.2-2') : 'N/A' }}, sample: {{ anomalyResult.sample_size }})
+            }
+          </div>
+        }
+        <div class="result-actions">
+          <button class="btn-secondary" (click)="goToDashboard()">View Dashboard</button>
+          <button class="btn-secondary" routerLink="/files">My Files</button>
+        </div>
       </div>
     }
 
-    <!-- Error -->
     @if (encStatus === 'error') {
       <div class="error-banner">{{ errorMessage }}</div>
     }
 
-    <!-- CTA -->
     <button
       class="btn-upload"
-      [disabled]="!selectedFile || encStatus === 'encrypting' || encStatus === 'uploading'"
+      [disabled]="!selectedFile || vaultLocked || encStatus === 'encrypting' || encStatus === 'uploading' || encStatus === 'detecting'"
       (click)="upload()"
     >
-      @if (encStatus === 'encrypting' || encStatus === 'uploading') {
+      @if (encStatus === 'encrypting' || encStatus === 'uploading' || encStatus === 'detecting') {
         <span class="spinner"></span> Processing…
       } @else {
         🔐 Encrypt and Upload Securely
       }
     </button>
-
-    <!-- Payload note -->
-    <p class="payload-note">Upload Progress — Encrypted Payload Only</p>
   </div>
 </div>

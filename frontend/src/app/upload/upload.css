@@ -41,6 +41,13 @@
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
 }
 
+.upload-sub {
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.85rem;
+  margin: -1rem 0 1.5rem;
+}
+
 .upload-title {
   font-size: 1.4rem;
   font-weight: 700;
@@ -48,6 +55,20 @@
   margin: 0 0 1.5rem;
   text-align: center;
 }
+
+/* Vault status */
+.vault-ok {
+  background: #ecfdf5; border: 1px solid #6ee7b7; border-radius: 8px;
+  color: #065f46; font-size: 0.82rem; font-weight: 500;
+  padding: 8px 14px; margin-bottom: 1.25rem; text-align: center;
+}
+.vault-warning {
+  background: #fef3c7; border: 1px solid #fcd34d; border-radius: 8px;
+  color: #92400e; font-size: 0.85rem; font-weight: 500;
+  padding: 10px 14px; margin-bottom: 1.25rem; text-align: center;
+}
+.vault-warning a { color: #1a5fa8; font-weight: 700; }
+.drop-zone.disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* Drop zone */
 .drop-zone {
@@ -68,6 +89,88 @@
 .drop-label { color: #1a5fa8; font-weight: 500; margin: 0; }
 .drop-sub { font-size: 0.8rem; color: #6b7280; font-weight: 400; }
 .hidden-input { display: none; }
+
+/* Passphrase */
+.passphrase-group {
+  margin-bottom: 1.25rem;
+}
+.passphrase-label {
+  display: block;
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+.passphrase-hint {
+  display: block;
+  font-weight: 400;
+  font-size: 0.78rem;
+  color: #6b7280;
+  margin-top: 2px;
+}
+.passphrase-row {
+  display: flex;
+  gap: 8px;
+}
+.passphrase-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+}
+.passphrase-input:focus { border-color: #1a5fa8; box-shadow: 0 0 0 3px rgba(26,95,168,0.15); }
+.toggle-btn {
+  padding: 0 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #f8fafc;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #374151;
+}
+.key-notice {
+  font-size: 0.78rem;
+  color: #92400e;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-top: 8px;
+}
+
+/* Anomaly result */
+.anomaly-result {
+  margin-top: 0.75rem;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+.anomaly-ok   { background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
+.anomaly-warn { background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; }
+
+.result-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.btn-secondary {
+  flex: 1;
+  padding: 8px 0;
+  background: white;
+  border: 1px solid #1a5fa8;
+  color: #1a5fa8;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+}
+.btn-secondary:hover { background: #eff6ff; }
+
+.status-detecting { background: #f5f3ff; color: #5b21b6; border: 1px solid #c4b5fd; }
 
 /* Status bar */
 .status-bar {
