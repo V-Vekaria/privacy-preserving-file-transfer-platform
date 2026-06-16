@@ -1,11 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, from, switchMap } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { VaultService } from './vault.service';
 
 export interface AuthResponse {
   token: string;
+  key_salt: string;
   message?: string;
 }
 
@@ -14,20 +16,32 @@ export class AuthService {
   private readonly TOKEN_KEY = 'st_token';
   private http = inject(HttpClient);
   private router = inject(Router);
+  private vault = inject(VaultService);
 
-  register(username: string, password: string): Observable<AuthResponse> {
+  register(username: string, email: string, password: string): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${environment.apiUrl}/auth/register`, { username, password })
-      .pipe(tap(res => this.storeToken(res.token)));
+      .post<AuthResponse>(`${environment.apiUrl}/auth/register`, { username, email, password })
+      .pipe(
+        tap(res => this.storeToken(res.token)),
+        switchMap(res =>
+          from(this.vault.deriveAndStore(password, res.key_salt).then(() => res))
+        )
+      );
   }
 
   login(username: string, password: string): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${environment.apiUrl}/auth/login`, { username, password })
-      .pipe(tap(res => this.storeToken(res.token)));
+      .pipe(
+        tap(res => this.storeToken(res.token)),
+        switchMap(res =>
+          from(this.vault.deriveAndStore(password, res.key_salt).then(() => res))
+        )
+      );
   }
 
   logout(): void {
+    this.vault.lock();
     localStorage.removeItem(this.TOKEN_KEY);
     this.router.navigate(['/login']);
   }

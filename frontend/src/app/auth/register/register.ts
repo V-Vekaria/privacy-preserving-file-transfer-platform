@@ -13,6 +13,7 @@ import { AuthService } from '../auth.service';
 })
 export class RegisterComponent {
   username = '';
+  email = '';
   password = '';
   confirmPassword = '';
   showPassword = false;
@@ -23,8 +24,12 @@ export class RegisterComponent {
   private router = inject(Router);
 
   onSubmit(): void {
-    if (!this.username || !this.password) {
-      this.errorMessage = 'Username and password are required.';
+    if (!this.username || !this.email || !this.password) {
+      this.errorMessage = 'Username, email, and password are required.';
+      return;
+    }
+    if (!this.email.includes('@')) {
+      this.errorMessage = 'A valid email address is required.';
       return;
     }
     if (this.password !== this.confirmPassword) {
@@ -37,7 +42,7 @@ export class RegisterComponent {
     }
     this.loading = true;
     this.errorMessage = '';
-    this.auth.register(this.username, this.password).subscribe({
+    this.auth.register(this.username, this.email, this.password).subscribe({
       next: () => this.router.navigate(['/dashboard']),
       error: err => {
         this.errorMessage = err.error?.error || 'Registration failed. Please try again.';

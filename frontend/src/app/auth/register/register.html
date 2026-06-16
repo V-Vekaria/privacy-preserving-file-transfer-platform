@@ -17,6 +17,17 @@
     </div>
 
     <div class="field-group">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        [(ngModel)]="email"
+        placeholder="your@email.com"
+        autocomplete="email"
+      />
+    </div>
+
+    <div class="field-group">
       <label for="password">Password</label>
       <div class="password-wrapper">
         <input
