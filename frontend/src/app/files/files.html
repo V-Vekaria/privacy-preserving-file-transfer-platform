@@ -1,0 +1,181 @@
+<div class="files-page">
+<nav class="nav-bar">
+  <span class="nav-brand">SecureTransfer</span>
+  <div class="nav-links">
+    <button class="nav-link" routerLink="/upload">Upload</button>
+    <button class="nav-link active">My Files</button>
+    <button class="nav-link" routerLink="/dashboard">Dashboard</button>
+    <button class="nav-link" (click)="logout()">Logout</button>
+  </div>
+</nav>
+
+<div class="files-wrapper">
+  <div class="files-header">
+    <div>
+      <h1 class="page-title">My Files</h1>
+      <p class="page-sub">Filenames and contents are AES-256 encrypted in your browser. The server never sees plaintext.</p>
+    </div>
+    <a routerLink="/upload" class="btn-primary">+ Upload New File</a>
+  </div>
+
+  <!-- Search + filter bar -->
+  <div class="search-bar">
+    <input
+      class="search-input"
+      type="text"
+      placeholder="Search files…"
+      [(ngModel)]="searchQuery"
+      aria-label="Search files"
+    />
+    <div class="filter-tabs">
+      <button class="filter-tab" [class.active]="filterMode === 'all'" (click)="filterMode = 'all'">
+        All ({{ files.length }})
+      </button>
+      <button class="filter-tab filter-tab-warn" [class.active]="filterMode === 'anomaly'" (click)="filterMode = 'anomaly'">
+        ⚠ Anomalies ({{ anomalyCount }})
+      </button>
+      <button class="filter-tab" [class.active]="filterMode === 'normal'" (click)="filterMode = 'normal'">
+        ✓ Normal ({{ files.length - anomalyCount }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Vault locked banner -->
+  @if (vaultLocked) {
+    <div class="vault-banner">
+      🔒 Your vault is locked — filenames are hidden and downloads are unavailable.
+      <a routerLink="/login">Log in again to unlock</a>
+    </div>
+  }
+
+  <div *ngIf="loading" class="state-msg">Loading your files…</div>
+  <div *ngIf="errorMessage" class="state-msg error">{{ errorMessage }}</div>
+
+  <div *ngIf="!loading && files.length === 0 && !errorMessage" class="empty-state">
+    <div class="empty-icon">📂</div>
+    <p>No files uploaded yet.</p>
+    <a routerLink="/upload" class="btn-primary">Upload your first file</a>
+  </div>
+
+  <div *ngIf="!loading && files.length > 0 && filteredFiles.length === 0" class="empty-state">
+    <div class="empty-icon">🔍</div>
+    <p>No files match your search or filter.</p>
+    <button class="btn-primary" (click)="searchQuery = ''; filterMode = 'all'">Clear filters</button>
+  </div>
+
+  <div *ngIf="!loading && filteredFiles.length > 0" class="file-list">
+    <div *ngFor="let f of filteredFiles" class="file-card" [class.file-card-warn]="f.anomaly_flagged">
+
+      <!-- Header -->
+      <div class="file-card-top">
+        <div class="file-info">
+          <span class="file-icon">🔒</span>
+          <div>
+            <p class="file-name">{{ vaultLocked ? '••••••••••' : f.displayName }}</p>
+            <p class="file-meta">{{ formatSize(f.enc_file_size) }} &bull; {{ formatDate(f.uploaded_at) }} &bull; {{ f.transfer_frequency }} transfer{{ f.transfer_frequency !== 1 ? 's' : '' }}</p>
+          </div>
+        </div>
+        <div class="file-actions-top">
+          <span class="badge" [class.badge-ok]="!f.anomaly_flagged" [class.badge-warn]="f.anomaly_flagged">
+            {{ f.anomaly_flagged ? '⚠ Anomaly' : '✓ Normal' }}
+          </span>
+          <button class="btn-icon btn-danger" title="Delete file" (click)="deleteFile(f)" aria-label="Delete file">🗑</button>
+        </div>
+      </div>
+
+      <!-- Anomaly detail panel -->
+      @if (f.anomaly_flagged) {
+        <div class="anomaly-panel">
+          <div class="anomaly-header">
+            <span class="anomaly-icon">⚠</span>
+            <div>
+              <p class="anomaly-title">Unusual transfer detected</p>
+              <p class="anomaly-why">
+                This file ({{ formatSize(f.enc_file_size) }}) is significantly larger than your usual transfers (avg {{ avgSize() }}).
+                @if (f.anomaly_zscore !== null) {
+                  Z-score: <strong>{{ f.anomaly_zscore }}</strong> (threshold: 2.0) ·
+                }
+                IQR: <strong>{{ f.anomaly_iqr === 'exceeded' ? 'exceeded' : 'normal' }}</strong>
+              </p>
+            </div>
+          </div>
+          <div class="anomaly-actions">
+            <div class="anomaly-expected">
+              <p class="anomaly-expected-label">Did you upload this intentionally?</p>
+              <button class="btn-dismiss" (click)="dismissAnomaly(f)">✓ Yes, mark as expected</button>
+            </div>
+            <div class="anomaly-unexpected">
+              <p class="anomaly-unexpected-label">Didn't expect this?</p>
+              <p class="anomaly-unexpected-desc">If you did not upload this file, someone may have access to your account. Change your password immediately and delete this file.</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Download -->
+      <div class="action-section">
+        <p class="action-label">⬇ Decrypt &amp; Download</p>
+        <div class="action-row">
+          <button
+            class="btn-action"
+            [disabled]="vaultLocked || downloadStatus.get(f.file_id) === 'downloading'"
+            (click)="download(f)"
+          >
+            @if (downloadStatus.get(f.file_id) === 'downloading') { Decrypting… }
+            @else if (downloadStatus.get(f.file_id) === 'done') { ✓ Saved to device }
+            @else if (vaultLocked) { 🔒 Vault locked }
+            @else { ⬇ Download }
+          </button>
+          @if (downloadStatus.get(f.file_id) === 'done') {
+            <span class="inline-success">Decrypted in your browser · server never saw plaintext</span>
+          }
+          @if (downloadStatus.get(f.file_id) === 'error') {
+            <span class="inline-error">{{ downloadError.get(f.file_id) }}</span>
+          }
+        </div>
+      </div>
+
+      <!-- Share -->
+      <div class="action-section action-section-share">
+        <p class="action-label">🔗 Share (24-hour link)</p>
+        @if (getShare(f.file_id).status === 'done') {
+          <div class="share-link-row">
+            <input class="share-link-input" [value]="getShare(f.file_id).link" readonly aria-label="Share link" />
+            <button class="btn-action btn-copy" (click)="copyLink(getShare(f.file_id))">
+              {{ getShare(f.file_id).copied ? '✓ Copied!' : 'Copy Link' }}
+            </button>
+          </div>
+          <p class="share-note">
+            ✓ Link copied! Send the link <strong>and</strong> the share passphrase
+            "<strong>{{ getShare(f.file_id).passphrase }}</strong>" to the recipient separately.
+            Link expires {{ getShare(f.file_id).expires }}.
+          </p>
+        } @else {
+          <div class="passphrase-row" style="margin-bottom:8px">
+            <input
+              [type]="getShare(f.file_id).showPassphrase ? 'text' : 'password'"
+              class="passphrase-input"
+              placeholder="Set a share passphrase…"
+              [(ngModel)]="getShare(f.file_id).passphrase"
+              autocomplete="off"
+            />
+            <button type="button" class="toggle-btn" (click)="getShare(f.file_id).showPassphrase = !getShare(f.file_id).showPassphrase">
+              {{ getShare(f.file_id).showPassphrase ? 'Hide' : 'Show' }}
+            </button>
+          </div>
+          @if (getShare(f.file_id).passphraseError) {
+            <p class="inline-error">{{ getShare(f.file_id).passphraseError }}</p>
+          }
+          <div class="action-row" style="margin-top:8px">
+            <button class="btn-action btn-share" [disabled]="vaultLocked || getShare(f.file_id).status === 'loading'" (click)="share(f)">
+              {{ getShare(f.file_id).status === 'loading' ? 'Generating…' : '🔗 Generate Share Link' }}
+            </button>
+            <span class="share-hint">Recipient uses this passphrase to decrypt — your login password stays private</span>
+          </div>
+        }
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>
