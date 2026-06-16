@@ -10,11 +10,7 @@ detection_bp = Blueprint("detection", __name__)
 @detection_bp.route("/analyse", methods=["POST"])
 @require_auth
 def analyse(current_user):
-    """
-    Analyse a single metadata record.
-    Body: { "metadata_id": <int> }
-    FR7, FR8, FR9 — real-time detection trigger.
-    """
+    """Analyse a single metadata record. Body: { "metadata_id": <int> }"""
     data = request.get_json(silent=True) or {}
     metadata_id = data.get("metadata_id")
 
@@ -39,10 +35,7 @@ def analyse(current_user):
 @detection_bp.route("/batch", methods=["POST"])
 @require_auth
 def batch(current_user):
-    """
-    Re-run detection on all metadata records for the authenticated user.
-    FR9 batch recalibration path.
-    """
+    """Re-run anomaly detection on all metadata records for the authenticated user."""
     results = batch_analyse(current_user.user_id)
     return jsonify({
         "user_id": current_user.user_id,
