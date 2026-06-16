@@ -10,7 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { CommonModule, DecimalPipe, DatePipe, TitleCasePipe } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
 import {
   DashboardService,
@@ -27,7 +27,7 @@ type EventFilter = 'all' | 'flagged';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, DatePipe, TitleCasePipe],
+  imports: [CommonModule, DecimalPipe, DatePipe, TitleCasePipe, RouterLink],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
@@ -150,7 +150,8 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   }
 
   logout(): void {
-    localStorage.removeItem('jwt_token');
+    localStorage.removeItem('st_token');
+    sessionStorage.removeItem('st_vault_key');
     this.router.navigate(['/login']);
   }
 }

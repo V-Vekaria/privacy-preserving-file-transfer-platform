@@ -4,7 +4,11 @@ import { RegisterComponent } from './auth/register/register';
 import { authGuard } from './auth/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  {
+    path: '',
+    loadComponent: () => import('./home/home').then(m => m.HomeComponent),
+    pathMatch: 'full',
+  },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   {
@@ -14,10 +18,21 @@ export const routes: Routes = [
       import('./upload/upload').then(m => m.UploadComponent),
   },
   {
+    path: 'files',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./files/files').then(m => m.FilesComponent),
+  },
+  {
     path: 'dashboard',
     canActivate: [authGuard],
     loadComponent: () =>
       import('./dashboard/dashboard').then(m => m.Dashboard),
+  },
+  {
+    path: 'shared/:token',
+    loadComponent: () =>
+      import('./shared/shared-download').then(m => m.SharedDownloadComponent),
   },
   { path: '**', redirectTo: 'login' },
 ];
