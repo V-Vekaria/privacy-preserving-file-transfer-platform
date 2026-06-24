@@ -19,6 +19,7 @@ import {
   FrequencyPoint,
   SizeBucket,
 } from './dashboard.service';
+import { AuthService } from '../auth/auth.service';
 
 Chart.register(...registerables);
 
@@ -34,6 +35,7 @@ type EventFilter = 'all' | 'flagged';
 export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   private dashService = inject(DashboardService);
   private router = inject(Router);
+  private auth = inject(AuthService);
 
   freqCanvas = viewChild<ElementRef<HTMLCanvasElement>>('freqCanvas');
   sizeCanvas = viewChild<ElementRef<HTMLCanvasElement>>('sizeCanvas');
@@ -150,8 +152,10 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   }
 
   logout(): void {
-    localStorage.removeItem('st_token');
-    sessionStorage.removeItem('st_vault_key');
-    this.router.navigate(['/login']);
+    this.auth.logout();
+  }
+
+  get username(): string | null {
+    return this.auth.getUsername();
   }
 }
