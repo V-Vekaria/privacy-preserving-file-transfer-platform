@@ -18,7 +18,8 @@
   font-weight: 700;
   font-size: 1.1rem;
 }
-.nav-links { display: flex; gap: 0.5rem; }
+.nav-brand-group { display: flex; align-items: center; gap: 0.6rem; }
+.nav-links { display: flex; align-items: center; gap: 0.5rem; }
 .nav-link {
   background: transparent;
   border: 1px solid rgba(255,255,255,0.4);
@@ -30,6 +31,13 @@
   transition: background 0.15s;
 }
 .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.18); }
+.nav-user {
+  color: rgba(255,255,255,0.85);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding-left: 0.6rem;
+  border-left: 1px solid rgba(255,255,255,0.3);
+}
 
 /* Container */
 .upload-container {

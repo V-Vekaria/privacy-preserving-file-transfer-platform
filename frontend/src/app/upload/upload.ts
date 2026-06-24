@@ -78,6 +78,7 @@ export class UploadComponent {
 
   goToDashboard(): void { this.router.navigate(['/dashboard']); }
   logout(): void { this.auth.logout(); }
+  get username(): string | null { return this.auth.getUsername(); }
 
   get fileSizeLabel(): string {
     if (!this.selectedFile) return '';

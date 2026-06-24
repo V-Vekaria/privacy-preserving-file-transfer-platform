@@ -88,7 +88,8 @@ export class UploadService {
   }
 
   getSharedFile(token: string): Observable<{
-    filename: string; ciphertext: string; iv: string; salt: string;
+    filename: string; filename_enc: string | null; filename_iv: string | null;
+    ciphertext: string; iv: string; salt: string;
     expires_at: string; wrapped_key: string; share_salt: string; share_iv: string;
   }> {
     return this.http.get<any>(`${environment.apiUrl}/share/${token}`);
@@ -102,7 +103,8 @@ export class UploadService {
             res.wrapped_key, res.share_salt, res.share_iv,
             sharePassphrase,
             res.ciphertext, res.iv,
-          ).then(data => ({ filename: res.filename, data }))
+            res.filename_enc, res.filename_iv,
+          ).then(({ data, filename }) => ({ filename: filename || res.filename, data }))
         )
       )
     );
