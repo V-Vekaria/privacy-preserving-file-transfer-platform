@@ -6,13 +6,18 @@
   padding: 0 24px; height: 56px; background: #1a5fa8;
 }
 .nav-brand { font-weight: 700; font-size: 1.1rem; color: white; }
-.nav-links { display: flex; gap: 0.5rem; }
+.nav-brand-group { display: flex; align-items: center; gap: 0.6rem; }
+.nav-links { display: flex; align-items: center; gap: 0.5rem; }
 .nav-link {
   background: transparent; border: 1px solid rgba(255,255,255,0.4);
   color: rgba(255,255,255,0.9); padding: 6px 14px; border-radius: 6px;
   cursor: pointer; font-size: 0.85rem; font-weight: 500; text-decoration: none;
 }
 .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.18); color: white; }
+.nav-user {
+  color: rgba(255,255,255,0.85); font-size: 0.8rem; font-weight: 500;
+  padding-left: 0.6rem; border-left: 1px solid rgba(255,255,255,0.3);
+}
 
 /* Layout */
 .files-wrapper { max-width: 860px; margin: 40px auto; padding: 0 24px; }

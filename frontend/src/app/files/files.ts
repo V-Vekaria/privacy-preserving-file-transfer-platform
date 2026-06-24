@@ -44,6 +44,7 @@ export class FilesComponent implements OnInit {
 
   get vaultLocked(): boolean { return !this.vault.isUnlocked; }
   logout(): void { this.auth.logout(); }
+  get username(): string | null { return this.auth.getUsername(); }
 
   get filteredFiles(): ResolvedFile[] {
     return this.files.filter(f => {
