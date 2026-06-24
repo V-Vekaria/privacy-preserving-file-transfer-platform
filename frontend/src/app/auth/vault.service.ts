@@ -112,13 +112,16 @@ export class VaultService {
   }
 
   /**
-   * Unwrap a vault key using the recipient's share passphrase, then use it to decrypt the file.
+   * Unwrap a vault key using the recipient's share passphrase, then use it to decrypt the file
+   * and (if provided) the original filename — so the recipient's download keeps its real name
+   * and extension instead of falling back to a generic file_<id>.
    */
   async unwrapAndDecryptFile(
     wrappedKeyB64: string, shareSaltB64: string, shareIvHex: string,
     sharePassphrase: string,
     ciphertextB64: string, fileIvHex: string,
-  ): Promise<ArrayBuffer> {
+    filenameEncB64?: string | null, filenameIvHex?: string | null,
+  ): Promise<{ data: ArrayBuffer; filename: string | null }> {
     const enc = new TextEncoder();
     const shareSalt = this._fromB64(shareSaltB64);
     const shareIv   = new Uint8Array(shareIvHex.match(/.{2}/g)!.map(b => parseInt(b, 16)));
@@ -133,7 +136,20 @@ export class VaultService {
     const vaultKey = await crypto.subtle.importKey('raw', vaultKeyRaw, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
 
     const fileIv = new Uint8Array(fileIvHex.match(/.{2}/g)!.map(b => parseInt(b, 16)));
-    return crypto.subtle.decrypt({ name: 'AES-GCM', iv: fileIv }, vaultKey, this._fromB64(ciphertextB64));
+    const data = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fileIv }, vaultKey, this._fromB64(ciphertextB64));
+
+    let filename: string | null = null;
+    if (filenameEncB64 && filenameIvHex) {
+      try {
+        const nameIv = new Uint8Array(filenameIvHex.match(/.{2}/g)!.map(b => parseInt(b, 16)));
+        const namePlain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: nameIv }, vaultKey, this._fromB64(filenameEncB64));
+        filename = new TextDecoder().decode(namePlain);
+      } catch {
+        filename = null;
+      }
+    }
+
+    return { data, filename };
   }
 
   /** Decrypt a file using the vault key. */

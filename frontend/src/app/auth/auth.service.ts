@@ -50,6 +50,16 @@ export class AuthService {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
+  getUsername(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      return JSON.parse(atob(token.split('.')[1])).username ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   isLoggedIn(): boolean {
     const token = this.getToken();
     if (!token) return false;
