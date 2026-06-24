@@ -67,6 +67,8 @@ def download_shared(token):
 
     return jsonify({
         "filename": enc_file.filename or f"file_{enc_file.file_id}",
+        "filename_enc": enc_file.filename_enc,
+        "filename_iv": enc_file.filename_iv,
         "ciphertext": base64.b64encode(enc_file.encrypted_data).decode("ascii"),
         "iv": enc_file.iv,
         "salt": enc_file.salt or "",
