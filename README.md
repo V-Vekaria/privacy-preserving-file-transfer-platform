@@ -1,7 +1,7 @@
 # SecureTransfer — Privacy-Preserving File Transfer Platform
 
-> COM668 Computing Project · BSc (Hons) Computing · Ulster University · 2024/2025  
-> Student: Vishnu Vekaria
+> COM668 Computing Project · BSc (Hons) Computing · Ulster University · Academic Year 2025/26 — Semester I  
+> Student: Vishnu Vekaria · Student ID: B00969091
 
 ---
 
@@ -24,10 +24,10 @@ On top of the zero-knowledge storage layer, a **metadata-only anomaly detection 
 - **bcrypt** — password hashing (12 rounds)
 - **Flask-Limiter** — rate limiting on auth endpoints
 - **Flask-CORS** — cross-origin support for Angular frontend
-- **pytest** — 50 tests across 4 test modules
+- **pytest** — 50 tests across 5 test modules (auth, dashboard, detection, files, share)
 
 ### Frontend
-- **Angular 17** — standalone components, lazy-loaded routes
+- **Angular 20** — standalone components, lazy-loaded routes
 - **Web Crypto API** — PBKDF2 + AES-256-GCM, all in-browser
 - **Chart.js** — dashboard visualisations
 - **RxJS** — reactive HTTP and async vault operations
@@ -61,6 +61,8 @@ On top of the zero-knowledge storage layer, a **metadata-only anomaly detection 
 - Owner's login password is never shared or exposed
 - Tokens expire automatically after 24 hours; owner can revoke early
 - No authentication required for recipients
+- Every download via a share link increments `access_count` and updates `last_accessed_at` on the token
+- Owner can check access stats (`GET /api/share/<token>/stats`) to see how many times a link was used
 
 ### Anomaly Detection
 - Fires automatically on every upload
@@ -88,18 +90,20 @@ Browser
 │   [Only ciphertext + IV sent over HTTPS — no plaintext ever]
 │
 Flask API
+├── /api/health     →  health check
 ├── /api/auth       →  register, login (rate-limited, bcrypt, JWT)
-├── /api/files      →  upload, list, download, delete (ownership enforced)
-├── /api/share      →  create token, retrieve ciphertext, revoke
-├── /api/detection  →  analyse, batch (Z-score + IQR)
-└── /api/dashboard  →  aggregated stats
+├── /api/files      →  upload, list, get, delete, dismiss-anomaly (ownership enforced)
+├── /api/share      →  create token, retrieve ciphertext, access stats, revoke
+├── /api/detection  →  analyse (single), batch (Z-score + IQR)
+└── /api/dashboard  →  aggregated stats, frequency chart, size distribution, anomaly events
 │
 SQLite (via SQLAlchemy)
 ├── user              →  user_id, username, email, password_hashed, key_salt
 ├── encrypted_file    →  file_id, user_id, encrypted_data, iv, filename_enc, filename_iv
 ├── metadata          →  metadata_id, file_id, enc_file_size, timestamp, transfer_frequency
 ├── anomaly_result    →  result_id, metadata_id, zscore_value, iqr_threshold, anomaly_flag
-└── share_token       →  token, file_id, expires_at, wrapped_key, share_salt, share_iv
+└── share_token       →  token, file_id, expires_at, wrapped_key, share_salt, share_iv,
+                          access_count, last_accessed_at
 ```
 
 ---
@@ -112,7 +116,7 @@ SQLite (via SQLAlchemy)
 | `encrypted_file` | file_id, user_id, encrypted_data, iv, filename_enc, filename_iv, upload_timestamp |
 | `metadata` | metadata_id, file_id, user_id, enc_file_size, timestamp, transfer_frequency |
 | `anomaly_result` | result_id, metadata_id, zscore_value, iqr_threshold, anomaly_flag, detected_at |
-| `share_token` | token_id, token, file_id, owner_id, expires_at, wrapped_key, share_salt, share_iv |
+| `share_token` | token_id, token, file_id, owner_id, expires_at, wrapped_key, share_salt, share_iv, access_count, last_accessed_at |
 
 ---
 
@@ -132,7 +136,7 @@ SQLite (via SQLAlchemy)
 cd backend
 python -m venv .venv && .venv\Scripts\activate
 pip install -r requirements.txt
-flask run --port 5000
+python run.py
 ```
 
 ### Frontend
@@ -179,11 +183,11 @@ python -m pytest tests/ -v
 | Phase | Status |
 |-------|--------|
 | Backend API (auth, files, detection, share, dashboard) | ✅ Complete |
-| Frontend (Angular 17, vault, upload, files, share, dashboard) | ✅ Complete |
+| Frontend (Angular 20, vault, upload, files, share, dashboard) | ✅ Complete |
 | Test suite (50 tests, 0 warnings) | ✅ Complete |
 | Demo video | ⏳ Pending |
 
-**Deadline: 7 July 2025, 12:00 noon**
+**AT3 Deadline: 7 July 2026, 12:00 noon**
 
 ---
 
@@ -191,8 +195,11 @@ python -m pytest tests/ -v
 
 - **Module:** COM668 Computing Project
 - **Institution:** Ulster University
-- **AT3 Deliverable:** Working prototype + demo video (due 7 July 2025)
-- **AT4 Deliverable:** Final evaluation report (due 11 August 2025)
+- **Academic Year:** 2025/26, Semester I
+- **AT1 Concept Proposal:** submitted (12 February, formative)
+- **AT2 Challenge Definition Report:** submitted, 45% of module mark
+- **AT3 Software Demonstration Video:** due 7 July 2026, 12:00 noon, 25% of module mark (15 minutes max)
+- **AT4 Project Review Report:** due 11 August 2026, 12:00 noon, 30% of module mark (2400 words max)
 
 ---
 
