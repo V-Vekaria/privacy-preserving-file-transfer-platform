@@ -8,3 +8,5 @@ Flask-Cors
 Flask-Limiter
 pytest
 pytest-flask
+gunicorn
+psycopg2-binary

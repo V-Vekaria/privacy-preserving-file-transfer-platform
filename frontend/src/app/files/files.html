@@ -29,6 +29,8 @@
       placeholder="Search files…"
       [(ngModel)]="searchQuery"
       aria-label="Search files"
+      name="fileSearchQuery"
+      autocomplete="off"
     />
     <div class="filter-tabs">
       <button class="filter-tab" [class.active]="filterMode === 'all'" (click)="filterMode = 'all'">

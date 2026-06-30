@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_limiter import Limiter
@@ -18,7 +18,10 @@ def create_app(config_name="development"):
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-CHANGE-ME")
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "jwt-secret-CHANGE-ME")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50 MB
+    # 50 MB advertised file limit, but base64-encoded ciphertext + JSON overhead
+    # inflates the raw request body by ~37% — so the actual cap must be higher
+    # than 50 MB or legitimate 50 MB files get rejected at the HTTP layer.
+    app.config["MAX_CONTENT_LENGTH"] = 70 * 1024 * 1024  # 70 MB raw request size
 
     if config_name == "testing":
         app.config["TESTING"] = True
@@ -36,6 +39,10 @@ def create_app(config_name="development"):
     @app.get("/api/health")
     def health():
         return {"status": "ok", "service": "SecureTransfer API"}
+
+    @app.errorhandler(413)
+    def too_large(_e):
+        return jsonify({"error": "File too large — the encrypted upload exceeds the server limit."}), 413
 
     from .routes.auth import auth_bp
     from .routes.files import files_bp
