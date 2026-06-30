@@ -95,6 +95,22 @@ def test_login_success(client):
     assert "token" in resp.get_json()
 
 
+def test_login_with_email_succeeds(client):
+    client.post("/api/auth/register", json={
+        "username": "emaillogin",
+        "email": "emaillogin@test.com",
+        "password": "loginpass123",
+    })
+    resp = client.post("/api/auth/login", json={
+        "username": "emaillogin@test.com",
+        "password": "loginpass123",
+    })
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert "token" in data
+    assert data["username"] == "emaillogin"
+
+
 def test_login_wrong_password(client):
     client.post("/api/auth/register", json={
         "username": "wrongpass",

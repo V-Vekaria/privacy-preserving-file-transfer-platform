@@ -43,7 +43,7 @@ export class AuthService {
   logout(): void {
     this.vault.lock();
     localStorage.removeItem(this.TOKEN_KEY);
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
   }
 
   getToken(): string | null {

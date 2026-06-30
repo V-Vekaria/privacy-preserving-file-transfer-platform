@@ -23,7 +23,7 @@ export class LoginComponent {
 
   onSubmit(): void {
     if (!this.username || !this.password) {
-      this.errorMessage = 'Username and password are required.';
+      this.errorMessage = 'Username/email and password are required.';
       return;
     }
     this.loading = true;

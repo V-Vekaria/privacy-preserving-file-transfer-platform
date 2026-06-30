@@ -88,13 +88,16 @@ def login():
     if not data:
         return jsonify({"error": "Request body must be JSON"}), 400
 
-    username = (data.get("username") or "").strip()
+    identifier = (data.get("username") or "").strip()
     password = data.get("password") or ""
 
-    if not username or not password:
-        return jsonify({"error": "Username and password are required"}), 400
+    if not identifier or not password:
+        return jsonify({"error": "Username/email and password are required"}), 400
 
-    user = User.query.filter_by(username=username).first()
+    # Accept either username or email as the login identifier
+    user = User.query.filter(
+        (User.username == identifier) | (User.email == identifier.lower())
+    ).first()
     if not user or not _check_password(password, user.password_hashed):
         return jsonify({"error": "Invalid username or password"}), 401
 
