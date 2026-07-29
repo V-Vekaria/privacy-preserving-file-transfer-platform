@@ -25,6 +25,33 @@ DEMO_USERNAME = "demo"
 DEMO_PASSWORD = "Demo1234!"
 DEMO_EMAIL    = "demo@securetransfer.local"
 
+DEFAULT_LOCAL_DB = "sqlite:///securetransfer.db"
+
+
+def _check_target_db():
+    """Refuse to seed a non-local database unless explicitly forced and confirmed."""
+    db_uri = os.getenv("DATABASE_URI", DEFAULT_LOCAL_DB)
+    print(f"Target database: {db_uri}")
+
+    if db_uri == DEFAULT_LOCAL_DB:
+        return
+
+    if "--force" not in sys.argv:
+        print(
+            "\nRefusing to run: DATABASE_URI does not point at the local dev database.\n"
+            "This script creates a known demo account (demo / Demo1234!) and is not "
+            "safe to run against a deployed instance.\n"
+            "Pass --force to override."
+        )
+        sys.exit(1)
+
+    answer = input(
+        f"\nAbout to seed a NON-LOCAL database: {db_uri}\nType 'yes' to continue: "
+    )
+    if answer.strip().lower() != "yes":
+        print("Aborted.")
+        sys.exit(1)
+
 # 14 normal transfers (~50–200 KB encrypted) + 1 giant outlier (~4 MB)
 # These represent realistic user behaviour: mostly small docs, one huge file
 TRANSFER_SIZES = [
@@ -142,4 +169,5 @@ def seed():
 
 
 if __name__ == "__main__":
+    _check_target_db()
     seed()
