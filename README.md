@@ -1,7 +1,7 @@
 # SecureTransfer — Privacy-Preserving File Transfer Platform
 
 > COM668 Computing Project · BSc (Hons) Computing · Ulster University · Academic Year 2025/26 — Semester I  
-> Student: Vishnu Vekaria · Student ID: B00969091
+> Student: Vishnu Vekaria
 
 ---
 
