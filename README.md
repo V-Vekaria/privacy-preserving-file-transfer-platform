@@ -184,10 +184,10 @@ python -m pytest tests/ -v
 |-------|--------|
 | Backend API (auth, files, detection, share, dashboard) | ✅ Complete |
 | Frontend (Angular 20, vault, upload, files, share, dashboard) | ✅ Complete |
-| Test suite (50 tests, 0 warnings) | ✅ Complete |
-| Demo video | ⏳ Pending |
+| Test suite (51 tests, 0 warnings) | ✅ Complete |
+| Demo video | ✅ Submitted |
 
-**AT3 Deadline: 7 July 2026, 12:00 noon**
+**AT3 submitted: 2 July 2026, 10:57 — source code and demonstration video**
 
 ---
 
@@ -198,8 +198,8 @@ python -m pytest tests/ -v
 - **Academic Year:** 2025/26, Semester I
 - **AT1 Concept Proposal:** submitted (12 February, formative)
 - **AT2 Challenge Definition Report:** submitted, 45% of module mark
-- **AT3 Software Demonstration Video:** due 7 July 2026, 12:00 noon, 25% of module mark (15 minutes max)
-- **AT4 Project Review Report:** due 11 August 2026, 12:00 noon, 30% of module mark (2400 words max)
+- **AT3 Software Demonstration Video:** submitted 2 July 2026, 25% of module mark (15 minutes max)
+- **AT4 Project Review Report:** due 5 August 2026, 12:00 noon, 30% of module mark (2400 words max)
 
 ---
 
